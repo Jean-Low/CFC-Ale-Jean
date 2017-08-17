@@ -9,6 +9,7 @@
 
 from enlace import *
 import time
+import timeit
 
 # Serial Com Port
 #   para saber a sua porta, execute no terminal :
@@ -48,6 +49,7 @@ def main():
     # Transmite imagem
     print("Transmitindo .... {} bytes".format(txLen))
     com.sendData(txBuffer)
+    inicio = timeit.timeit()
 
     # espera o fim da transmissão
     while(com.tx.getIsBussy()):
@@ -57,8 +59,12 @@ def main():
     txSize = com.tx.getStatus()
     print ("Transmitido       {} bytes ".format(txSize))
 
+	# Calcula e exibe o tempo de execução
+    mil = 1000
+    deltaT = (timeit.timeit() - inicio) * mil
+    print("Tempo de transmição: " + "%.0f" % deltaT + "ms\n")
+	
     # Faz a recepção dos dados
-    print(com)
     print ("Recebendo dados .... ")
     rxBuffer, nRx = com.getData(txLen)
 

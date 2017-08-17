@@ -9,7 +9,6 @@
 
 from enlace import *
 import time
-
 # Serial Com Port
 #   para saber a sua porta, execute no terminal :
 #   python -m serial.tools.list_ports
@@ -26,10 +25,9 @@ def main():
     com.enable()
 
     # Endereco da imagem a ser transmitida
+	#imageR = "./imgs/imageC.png"
     imageR = "./imgs/imageC.png"
 
-    # Endereco da imagem a ser salva
-    imageW = "./imgs/recebida.png"
 
     # Log
     print("-------------------------")
@@ -48,6 +46,8 @@ def main():
     # Transmite imagem
     print("Transmitindo .... {} bytes".format(txLen))
     com.sendData(txBuffer)
+    inicio = time.time()
+    print("startei-me")
 
     # espera o fim da transmissão
     while(com.tx.getIsBussy()):
@@ -56,24 +56,11 @@ def main():
     # Atualiza dados da transmissão
     txSize = com.tx.getStatus()
     print ("Transmitido       {} bytes ".format(txSize))
-
-    # Faz a recepção dos dados
-    #print(com)
-    #print ("Recebendo dados .... ")
-    #rxBuffer, nRx = com.getData(txLen)
-
-    # log
-    #print ("Lido              {} bytes ".format(nRx))
-
-    # Salva imagem recebida em arquivo
-    #print("-------------------------")
-    #print ("Salvando dados no arquivo :")
-    #print (" - {}".format(imageW))
-    #f = open(imageW, 'wb')
-    #f.write(rxBuffer)
-
-    # Fecha arquivo de imagem
-    #f.close()
+	
+	# Calcula e exibe o tempo de execução
+    mil = 1000
+    deltaT = (time.time() - inicio)
+    print("Tempo de transmição: " , "%.2f" % deltaT , " segundos\n")
 
     # Encerra comunicação
     print("-------------------------")
