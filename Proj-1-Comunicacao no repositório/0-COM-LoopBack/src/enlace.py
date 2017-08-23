@@ -71,7 +71,6 @@ class enlace(object):
         eop = signature
         
         data = header + data + eop
-        
         print(data)
         
         self.tx.sendBuffer(data)
