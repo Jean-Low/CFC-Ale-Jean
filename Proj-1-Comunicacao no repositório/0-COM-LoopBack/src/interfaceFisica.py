@@ -24,7 +24,8 @@ class fisica(object):
         self.name        = name
         self.port        = None
         #self.baudrate    = 115200
-        self.baudrate    = 1152000
+        #self.baudrate    = 230400 # max recomended rate for non-error transfer
+        self.baudrate    = 2500000 #stress test (max rate of the ATmega328P)
         self.bytesize    = serial.EIGHTBITS
         self.parity      = serial.PARITY_NONE
         self.stop        = serial.STOPBITS_ONE

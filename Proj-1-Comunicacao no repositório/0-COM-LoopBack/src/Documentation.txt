@@ -1,0 +1,6 @@
+Run on Python 3
+
+Tamanho do packet: 2^16 bytes = (64kiB)
+Tamanho máx de packets por transferencia 2^16
+
+Tamanho máximo do arquivo de transferência = 2^16*2^16=2^32=4GiB

@@ -53,6 +53,27 @@ class enlace(object):
     def sendData(self, data):
         """ Send data over the enlace interface
         """
+        
+        n = 1 # ;3  change
+        
+        signature = 'F.A.S.T.'.encode()
+        label = bytes([0])
+        counter = bytes([n // 255, n % 255])
+        size = bytes([255,255 - 28])
+        
+        header = signature + label + counter + size
+        
+        print(header)
+        
+        #TODO Checksum
+        signature = 'S.L.O.W.'.encode()
+        
+        eop = signature
+        
+        data = header + data + eop
+        
+        print(data)
+        
         self.tx.sendBuffer(data)
 
     def getData(self, size):
