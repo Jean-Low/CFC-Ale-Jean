@@ -46,6 +46,9 @@ def main():
     
     rxBuffer,tx = com.getData(size)
     potentialEop, tx = com.getData(eopSize)
+    
+    fim = time.time()
+    
     print('end of packet is ', potentialEop)
     
     if(potentialEop == 'S.L.O.W.'.encode()):
@@ -53,13 +56,10 @@ def main():
     else:
         print('file corrupted')
 
-    fim = time.time()
     # Inicia a contagem do tempo de transmissão
 
     # log
     print ("Received        {} bytes of usefull data".format(size))
-    
-    print(inicio)
     
 
     # Salva imagem recebida em arquivo

@@ -7,10 +7,8 @@
 #  Camada de Enlace
 ####################################################
 
-# Importa pacote de tempo
 import time
-
-# Threads
+import sys
 import threading
 
 # Class
@@ -98,7 +96,15 @@ class RX(object):
         This function blocks until the number of bytes is received
         """
         while(self.getBufferLen() < size):
+            
+            sys.stdout.write("Received: " + str(self.getBufferLen()) + "/" + str(size))
+            sys.stdout.write("\r")
+            sys.stdout.flush()
             time.sleep(0.05)
+
+        sys.stdout.write("\nReceived: "+str(self.getBufferLen()) + "/" + str(size) + "\n")
+
+
 
         return(self.getBuffer(size))
 
