@@ -60,7 +60,7 @@ class enlace(object):
         signature = 'F.A.S.T.'.encode()
         label = bytes([0])
         counter = bytes([n // 256, n % 256])
-        size = bytes([size//256,size%256])
+        size = bytes([size // 256,size % 256])
         
         header = signature + label + counter + size
         
