@@ -7,15 +7,16 @@
 #  Aplicação
 ####################################################
 
+import sys
 from enlace import *
 import time
 # Serial Com Port
 #   para saber a sua porta, execute no terminal :
 #   python -m serial.tools.list_ports
 
-#serialName = "/dev/ttyACM0"           # Ubuntu (variacao de)
+serialName = "/dev/ttyACM0"       # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM4"                  # Windows(variacao de)
+#serialName = "COM4"                  # Windows(variacao de)
 
 def main():
     # Inicializa enlace
@@ -26,7 +27,7 @@ def main():
 
     # Endereco da imagem a ser transmitida
 	#imageR = "./imgs/imageC.png"
-    imageR = "./imgs/imageC.png"
+    imageR = sys.argv[1]
 
 
     # Log
@@ -47,7 +48,6 @@ def main():
     print("Transmitindo .... {} bytes".format(txLen))
     com.sendData(txBuffer)
     inicio = time.time()
-    print("startei-me")
 
     # espera o fim da transmissão
     while(com.tx.getIsBussy()):

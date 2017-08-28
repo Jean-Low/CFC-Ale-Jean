@@ -55,15 +55,14 @@ class enlace(object):
         """
         
         n = 1 # ;3  change
-        
+        size= len(data)       
+
         signature = 'F.A.S.T.'.encode()
         label = bytes([0])
-        counter = bytes([n // 255, n % 255])
-        size = bytes([255,255 - 28])
+        counter = bytes([n // 256, n % 256])
+        size = bytes([size//256,size%256])
         
         header = signature + label + counter + size
-        
-        print(header)
         
         #TODO Checksum
         signature = 'S.L.O.W.'.encode()
@@ -71,7 +70,6 @@ class enlace(object):
         eop = signature
         
         data = header + data + eop
-        print(data)
         
         self.tx.sendBuffer(data)
 
