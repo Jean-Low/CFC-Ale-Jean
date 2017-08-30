@@ -54,8 +54,7 @@ class enlace(object):
     def listenSignal(self ,timeout): #valor -1111 desativa o timeout
         label = bytes([85])
         buffer= None
-        while timeout > 0:
-            print(timeout)
+        while timeout > 0 or timeout == -1111:
             if (timeout != -1111):
                 timeout -= 100
             time.sleep(0.1)

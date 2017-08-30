@@ -23,12 +23,12 @@ def main():
     imageW = "./imgs/recebida.png"
     
     # Handshake
-    while true:
-        print('Esperando por canal de comunicação')
+    while True:
+        print('Esperando por canal de comunicação . . .')
         state = 0
         if state == 0:
             answer = com.listenSignal(-1111)
-            if (answer == 'SYN')
+            if (answer == 'SYN'):
                 state = 1
             else:
                 state = 0
