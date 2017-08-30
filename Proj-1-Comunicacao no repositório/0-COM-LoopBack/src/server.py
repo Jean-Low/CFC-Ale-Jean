@@ -21,13 +21,37 @@ def main():
 
     # Endereco da imagem a ser salva
     imageW = "./imgs/recebida.png"
-
+    
+    # Handshake
+    while true:
+        print('Esperando por canal de comunicação')
+        state = 0
+        if state == 0:
+            answer = com.listenSignal(-1111)
+            if (answer == 'SYN')
+                state = 1
+            else:
+                state = 0
+        if state == 1:
+            com.sendSignal('SYN')
+            state = 2
+            
+        if state == 2:
+            com.sendSignal('ACK')
+            state = 3
+        if state == 3:
+            answer = com.listenSignal(2500)
+            if (answer == 'ACK'):
+                break
+            state = 0
+        print('ERROR: ' , answer, '\nTrying again')
+    
     # Log
     print("-------------------------")
     print("Comunicação inicializada")
     print("  porta : {}".format(com.fisica.name))
     print("-------------------------")
-
+    
     # Faz a recepção dos dados
     eopSize = 8 #16 when checksum is in
     print ("Recebendo dados .... ")

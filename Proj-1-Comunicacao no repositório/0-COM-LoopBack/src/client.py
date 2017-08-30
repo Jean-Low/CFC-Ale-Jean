@@ -44,11 +44,31 @@ def main():
     txLen    = len(txBuffer)
     
     # Handshake
-    print('Estabelecendo canal de comunicação')
-    com.sendSignal('SYN')
-    answer = com.listenSignal(2500)
-    print(answer)
+    while true:
+        print('Estabelecendo canal de comunicação')
+        state = 0
+        if state == 0:
+            com.sendSignal('SYN')
+            state = 1
+        if state == 1:
+            answer = com.listenSignal(2500)
+            if (answer == 'SYN' or answer == 'ACK')
+                tmp=answer
+                state = 2
+            else:
+                state = 0
+        if state == 2:
+            answer = com.listenSignal(2500)
+            if (answer == 'SYN' or answer == 'ACK') and tmp != answer
+                state = 3
+            else:
+                state = 0
+        if state == 3:
+            com.sendSignal('ACK')
+            break
+        print('ERROR: ' , answer, '\nTrying again')
 
+    
     # Transmite imagem
     print("Transmitindo .... {} bytes".format(txLen))
     com.sendData(txBuffer)

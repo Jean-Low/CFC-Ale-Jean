@@ -51,12 +51,13 @@ class enlace(object):
     # Application  interface       #
     ################################
     
-    def listenSignal(self ,timeout):
+    def listenSignal(self ,timeout): #valor -1111 desativa o timeout
         label = bytes([85])
         buffer= None
         while timeout > 0:
             print(timeout)
-            timeout -= 100
+            if (timeout != -1111):
+                timeout -= 100
             time.sleep(0.1)
             if(self.rx.getBufferLen() >= 17 ):
                 buffer = self.rx.getBuffer(17)
