@@ -23,6 +23,7 @@ def main():
     imageW = "./imgs/recebida.png"
     
     # Handshake
+    timeout = 25000
     while True:
         print('Esperando por canal de comunicação . . .')
         state = 0
@@ -40,7 +41,7 @@ def main():
             com.sendSignal('ACK')
             state = 3
         if state == 3:
-            answer = com.listenSignal(2500)
+            answer = com.listenSignal(timeout)
             if (answer == 'ACK'):
                 break
             state = 0

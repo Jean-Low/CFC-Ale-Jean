@@ -75,6 +75,7 @@ class enlace(object):
             85 :'TIMEOUT',
             15 :'NACK'}
         print (label)
+        self.rx.clearBuffer()
         return dic[label]
             
         #clear buffer afterward if data

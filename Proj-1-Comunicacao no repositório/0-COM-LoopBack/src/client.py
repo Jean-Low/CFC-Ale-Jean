@@ -44,6 +44,7 @@ def main():
     txLen    = len(txBuffer)
     
     # Handshake
+    timeout = 25000
     while True:
         print('Estabelecendo canal de comunicação')
         state = 0
@@ -51,14 +52,14 @@ def main():
             com.sendSignal('SYN')
             state = 1
         if state == 1:
-            answer = com.listenSignal(2500)
+            answer = com.listenSignal(timeout)
             if (answer == 'SYN' or answer == 'ACK'):
                 tmp=answer
                 state = 2
             else:
                 state = 0
         if state == 2:
-            answer = com.listenSignal(2500)
+            answer = com.listenSignal(timeout)
             if ((answer == 'SYN' or answer == 'ACK') and tmp != answer):
                 state = 3
             else:
