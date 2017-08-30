@@ -14,9 +14,9 @@ import time
 #   para saber a sua porta, execute no terminal :
 #   python -m serial.tools.list_ports
 
-#serialName = "/dev/ttyACM0"       # Ubuntu (variacao de)
+serialName = "/dev/ttyACM0"       # Ubuntu (variacao de)
 #serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM3"                  # Windows(variacao de)
+#serialName = "COM3"                  # Windows(variacao de)
 
 def main():
     # Inicializa enlace
@@ -44,7 +44,7 @@ def main():
     txLen    = len(txBuffer)
     
     # Handshake
-    while true:
+    while True:
         print('Estabelecendo canal de comunicação')
         state = 0
         if state == 0:
@@ -52,14 +52,14 @@ def main():
             state = 1
         if state == 1:
             answer = com.listenSignal(2500)
-            if (answer == 'SYN' or answer == 'ACK')
+            if (answer == 'SYN' or answer == 'ACK'):
                 tmp=answer
                 state = 2
             else:
                 state = 0
         if state == 2:
             answer = com.listenSignal(2500)
-            if (answer == 'SYN' or answer == 'ACK') and tmp != answer
+            if ((answer == 'SYN' or answer == 'ACK') and tmp != answer):
                 state = 3
             else:
                 state = 0
