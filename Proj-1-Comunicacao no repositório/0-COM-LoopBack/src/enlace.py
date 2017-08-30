@@ -74,7 +74,7 @@ class enlace(object):
             170 :'MALFORMED',
             85 :'TIMEOUT',
             15 :'NACK'}
-        print ("Resultado do packet ouvido: "+dic(label))
+        print ("Resultado do packet ouvido: "+dic[label])
         self.rx.clearBuffer()
         return dic[label]
             
