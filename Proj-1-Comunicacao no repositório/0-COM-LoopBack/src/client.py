@@ -44,7 +44,7 @@ def main():
     txLen    = len(txBuffer)
     
     # Handshake
-    timeout = 25000
+    timeout = 2000
     while True:
         print('Estabelecendo canal de comunicação')
         state = 0
