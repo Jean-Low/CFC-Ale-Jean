@@ -52,7 +52,7 @@ class enlace(object):
     ################################
     
     def listenSignal(self ,timeout): #valor -1111 desativa o timeout
-        label = bytes([85])
+        label = 85
         buffer= None
         while timeout > 0 or timeout == -1111:
             if (timeout != -1111):
@@ -65,16 +65,16 @@ class enlace(object):
         
         
         if(  buffer!=None and (buffer[0:8] != 'F.A.S.T.'.encode() or buffer[9:] != 'S.L.O.W.'.encode())):
-            label = bytes([170])
+            label = 170
         
         
         dic = {
-            bytes([255]) :'SYN',
-            bytes([240]) :'ACK',
-            bytes([170]) :'MALFORMED',
-            bytes([85]) :'TIMEOUT',
-            bytes([15]) :'NACK'}
-            
+            255 :'SYN',
+            240 :'ACK',
+            170 :'MALFORMED',
+            85 :'TIMEOUT',
+            15 :'NACK'}
+        print (label)
         return dic[label]
             
         #clear buffer afterward if data
