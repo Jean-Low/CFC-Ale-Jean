@@ -74,7 +74,7 @@ class enlace(object):
             170 :'MALFORMED',
             85 :'TIMEOUT',
             15 :'NACK'}
-        print (label)
+        print ("Resultado do packet ouvido: "+str(label))
         self.rx.clearBuffer()
         return dic[label]
             
@@ -98,7 +98,7 @@ class enlace(object):
         
         signal = header + eop
         
-        print('signal = ',signal)
+        print ("Packet Enviado: "+str(label))
         
         self.tx.sendBuffer(signal)
         

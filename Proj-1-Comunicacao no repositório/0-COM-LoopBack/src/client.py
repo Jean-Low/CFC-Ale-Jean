@@ -57,12 +57,14 @@ def main():
                 tmp=answer
                 state = 2
             else:
+                com.sendSignal('NACK')
                 state = 0
         if state == 2:
             answer = com.listenSignal(timeout)
             if ((answer == 'SYN' or answer == 'ACK') and tmp != answer):
                 state = 3
             else:
+                com.sendSignal('NACK')
                 state = 0
         if state == 3:
             time.sleep(0.1)
