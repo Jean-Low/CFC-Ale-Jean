@@ -65,12 +65,14 @@ def main():
             else:
                 state = 0
         if state == 3:
+            time.sleep(0.1)
             com.sendSignal('ACK')
             break
         print('ERROR: ' , answer, '\nTrying again')
 
     
     # Transmite imagem
+    time.sleep(0.2)
     print("Transmitindo .... {} bytes".format(txLen))
     com.sendData(txBuffer)
     inicio = time.time()
