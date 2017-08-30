@@ -50,6 +50,57 @@ class enlace(object):
     ################################
     # Application  interface       #
     ################################
+    
+    def listenSignal(self ,timeout):
+        label = bytes([85])
+        buffer= None
+        while timeout > 0:
+            print(timeout)
+            timeout -= 100
+            time.sleep(0.1)
+            if(self.rx.getBufferLen() >= 17 ):
+                buffer = self.rx.getBuffer(17)
+                label= buffer[8]
+                break
+        
+        
+        if(  buffer!=None and (buffer[0:8] != 'F.A.S.T.'.encode() or buffer[9:] != 'S.L.O.W.'.encode())):
+            label = bytes([170])
+        
+        
+        dic = {
+            bytes([255]) :'SYN',
+            bytes([240]) :'ACK',
+            bytes([170]) :'MALFORMED',
+            bytes([85]) :'TIMEOUT',
+            bytes([15]) :'NACK'}
+            
+        return dic[label]
+            
+        #clear buffer afterward if data
+    
+    def sendSignal(self, signal):
+        dic = {'SYN' : bytes([255]),
+                'ACK' : bytes([240]),
+                'NACK' : bytes([15])}
+                    
+
+        signature = 'F.A.S.T.'.encode()
+        label = dic[signal]
+        
+        header = signature + label
+        
+        #TODO Checksum
+        signature = 'S.L.O.W.'.encode()
+        
+        eop = signature
+        
+        signal = header + eop
+        
+        print('signal = ',signal)
+        
+        self.tx.sendBuffer(signal)
+        
     def sendData(self, data):
         """ Send data over the enlace interface
         """
