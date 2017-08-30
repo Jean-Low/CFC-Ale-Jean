@@ -3,27 +3,36 @@
 
 from enlace import *
 import time
+import serial.tools.list_ports
+
 
 # Serial Com Port
 #   para saber a sua porta, execute no terminal :
 #   python -m serial.tools.list_ports
 
-#serialName = "/dev/ttyACM0"           # Ubuntu (variacao de)
-#serialName = "/dev/tty.usbmodem1411" # Mac    (variacao de)
-serialName = "COM3"                  # Windows(variacao de)
-
 def main():
+    #encontra a porta do arduino
+    serialName = None 
+    ports = list(serial.tools.list_ports.comports())
+    for p in ports:
+        if 'Arduino' in p[1]:
+            serialName = p[0]
+    print(serialName)
+    if(serialName == None):
+        print('Arduino não encontrado!')
+        return
     # Inicializa enlace
     com = enlace(serialName)
-
+    
     # Ativa comunicacao
     com.enable()
+
 
     # Endereco da imagem a ser salva
     imageW = "./imgs/recebida.png"
     
     # Handshake
-    timeout = 25000
+    timeout = 2000
     error= False
     while True:
         print('Esperando por canal de comunicação . . .')
