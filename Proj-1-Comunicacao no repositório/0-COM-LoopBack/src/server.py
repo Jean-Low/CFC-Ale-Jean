@@ -43,7 +43,8 @@ def main():
                 state = 1
             else:
                 error= True
-                state = 1
+                print("Erro, recebemos um " str(answer))
+                state = 0
         if state == 1:
             time.sleep(0.1)
             com.sendSignal('SYN')
