@@ -57,7 +57,7 @@ def main():
                 tmp=answer
                 state = 2
             else:
-                com.sendSignal('NACK')
+                #com.sendSignal('NACK')
                 state = 0
         if state == 2:
             answer = com.listenSignal(timeout)
