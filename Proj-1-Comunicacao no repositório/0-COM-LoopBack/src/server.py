@@ -33,6 +33,7 @@ def main():
     
     # Handshake
     timeout = 2000
+    error= False
     while True:
         print('Esperando por canal de comunicação . . .')
         state = 0
@@ -41,12 +42,21 @@ def main():
             if (answer == 'SYN'):
                 state = 1
             else:
+                error= True
                 print("Erro, recebemos um "+str(answer))
                 state = 0
         if state == 1:
             time.sleep(0.1)
             com.sendSignal('SYN')
-            state = 2
+            
+            if (error):
+                error= False
+                time.sleep(0.1)
+                com.sendSignal('ACK')
+                
+                state= 0
+            else:
+                state = 2
             
         if state == 2:
             time.sleep(0.1)
