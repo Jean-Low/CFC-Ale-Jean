@@ -43,7 +43,7 @@ def main():
                 state = 1
             else:
                 error= True
-                print("Erro, recebemos um " str(answer))
+                print("Erro, recebemos um "+str(answer))
                 state = 0
         if state == 1:
             time.sleep(0.1)
