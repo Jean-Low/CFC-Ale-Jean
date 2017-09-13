@@ -33,6 +33,7 @@ def main():
     
     # Handshake
     timeout = 2000
+    com.checksum(1)
     while True:
         print('Esperando por canal de comunicação . . .')
         state = 0

@@ -130,3 +130,31 @@ class enlace(object):
         """
         data = self.rx.getNData(size)
         return(data, len(data))
+    
+    def validate (self,data):
+        isValid= True
+        print(data[-8:])
+        if((data[0:8] != 'F.A.S.T.'.encode() or data[-8:] != 'S.L.O.W.'.encode())):
+            isValid = False
+        
+        
+        
+        
+        return isValid 
+    
+    def checksum (self, data):
+        print('oi, eu sou um checksum : ' , int.from_bytes(bytes([12]), 'big') >> 1)
+        data= str(int.from_bytes(data, 'big'))[::-1]
+        key = int.from_bytes('F.A.S.T'.encode())
+        
+        #agora funciona?
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
