@@ -1,5 +1,5 @@
 :loop
-echo python --v
+python -V
 python server.py
 pause
 goto loop
