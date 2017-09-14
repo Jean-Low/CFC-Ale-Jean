@@ -26,8 +26,7 @@ def main():
     com.enable()
 
     # Endereco da imagem a ser transmitida
-	#imageR = "./imgs/imageC.png"
-    imageR = sys.argv[1]
+    filename = sys.argv[1]
 
 
     # Log
@@ -38,46 +37,67 @@ def main():
 
     # Carrega imagem
     print ("Carregando imagem para transmissão :")
-    print (" - {}".format(imageR))
+    print (" - {}".format(filename))
     print("-------------------------")
-    txBuffer = open(imageR, 'rb').read()
-    txLen    = len(txBuffer)
-    
+
+    com.packageData(open(filename, 'rb').read(), filename)
+
+    ###STATE MACHINE START###
+
     # Handshake
     timeout = 2000
     while True:
-        print('Estabelecendo canal de comunicação')
+        print('Estabelecendo canal de comunicação...')
         state = 0
         if state == 0:
-            com.sendSignal('SYN')
+            com.sendPacket('SYN')
             state = 1
         if state == 1:
-            answer = com.listenSignal(timeout)
+            answer = com.listenPacket(timeout)
             if (answer == 'SYN' or answer == 'ACK'):
                 tmp=answer
                 state = 2
             else:
-                #com.sendSignal('NACK')
                 state = 0
         if state == 2:
-            answer = com.listenSignal(timeout)
+            answer = com.listenPacket(timeout)
             if ((answer == 'SYN' or answer == 'ACK') and tmp != answer):
                 state = 3
             else:
-                com.sendSignal('NACK')
+                com.sendPacket('NACK')
                 state = 0
         if state == 3:
-            time.sleep(0.1)
-            com.sendSignal('ACK')
+            com.sendPacket('ACK')
             break
-        print('ERROR: ' , answer, '\nTrying again')
-
+        print('Erro;  ' , answer, '. Recomeçando handshake')
+    print('Handshake realizado com sucesso!')
     
-    # Transmite imagem
-    time.sleep(0.2)
-    print("Transmitindo .... {} bytes".format(txLen))
-    com.sendData(txBuffer)
-    inicio = time.time()
+    # Metadata
+    timeout= 2000
+    while True:
+        print('Enviando metadata...')
+        com.sendPacket('META')
+        answer= com.listenPacket(timeout)
+        if(answer=='ACK'):
+            break
+        print('Erro;  ' , answer, '. Recomeçando envio de metadata')
+    print('Envio da metadata realizado com sucesso!')
+
+    # File Transmission
+    timeout= 2000
+    counter= 0
+    while True:
+        print('Enviando packet '+str(counter)+' de '+str(len(com.queuedPck)))
+        com.sendPacket('DATA', counter)
+        if (answer== 'ACK'):
+            counter+= 1
+            if (counter==len(com.queuedPck))
+                break
+        else:
+            print('Erro;  ' , answer, '. Recomeçando o envio a partir do packet ', counter)
+    print('Fim do envio do arquivo')
+
+    ###STATE MACHINE END###
 
     # espera o fim da transmissão
     while(com.tx.getIsBussy()):

@@ -29,7 +29,8 @@ class enlace(object):
         self.rx          = RX(self.fisica)
         self.tx          = TX(self.fisica)
         self.connected   = False
-        self.data        = []
+        self.queuedPck   = []
+        self.receivedPck = []
         self.meta        = None
 
     def enable(self):
@@ -53,11 +54,11 @@ class enlace(object):
     
     def listenPacket(self ,timeout, size='small'): #valor -1111 desativa o timeout
         label = 85
-        buffer= None
+        packet= None
         
         dic = {
             'small': 17,
-            'medium': 0, #TODO: substituir pelo valor definido do packet metadata
+            'medium': 543, #signature + label + dataSize + filenameSize + content + checksum + signature : 8 +1 +4 +2 +512 +6 +8
             'big': 2**16 + 13 + 16} #payload + header + eop
         size= dic[size]
         
@@ -66,15 +67,15 @@ class enlace(object):
                 timeout -= 100
             time.sleep(0.1)
             if(self.rx.getBufferLen() >= size ):
-                buffer = self.rx.getBuffer(size)
-                label= buffer[8]
+                packet = self.rx.getBuffer(size)
+                label= packet[8]
                 break
         
         
-        if(  buffer!=None and (buffer[0:8] != 'F.A.S.T.'.encode() or buffer[-8:] != 'S.L.O.W.'.encode())): #confere as assinaturas de header e eop
+        if(  packet!=None and (packet[0:8] != 'F.A.S.T.'.encode() or packet[-8:] != 'S.L.O.W.'.encode())): #confere as assinaturas de header e eop
             label = 170
             
-        if( label=0 and checksum(buffer[0:-16]) != buffer(-16:-8)): #confere o checksum de header+payload contra o checksum no eop
+        if( (label==0 or label==131) and checksum(packet[0:-16]) != packet(-16:-8)): #confere o checksum de header+payload contra o checksum no eop
             label= 151
         
         
@@ -83,23 +84,24 @@ class enlace(object):
             240 :'ACK',
             170 :'MALFORMED',
             151 :'CORRUPTED',
-            128 :'META',
+            131 :'META',
             85  :'TIMEOUT',
             15  :'NACK'}
         
         label= dic[label]
         print ("Resultado do packet ouvido: "+label)
-        self.rx.clearBufferUntilHeader()
-        return label
+        self.rx.clearBufferUntilSignature()
+        return packet
     
     def sendPacket(self, label, number= 0):
+        time.sleep(0.1) #pra dar tempo do outro se preparar pra receber, testar diminuir ou remover este valor depois
 
         print ("Enviando packet tipo ", label)
 
         dic = {'SYN' : bytes([255]),
                 'ACK' : bytes([240]),
                 'NACK' : bytes([15]),
-                'META' : bytes([128]),
+                'META' : bytes([131]),
                 'DATA' : bytes([0])}
         label = dic[label]
 
@@ -114,38 +116,54 @@ class enlace(object):
             eop = signature
             packet= header + eop
 
-        else if(label==bytes([128]):
+        else if(label==bytes([131]):
             packet= self.meta
 
         else if(label==bytes([0])):
-            packet= self.data[number]
+            packet= self.queuedPck[number]
         
         self.tx.sendBuffer(packet)
 
     def packageData(self, data, filename):
         
-        self.data=[]        
+        self.queuedPck=[]        
 
         #bytes do payload de cada packet: 2**16
         packetamount= ( len(data)//2**16 )+1
         
-        #TODO: packet de metadata aqui
+        ##Fazer metadata
         #Para suportar o maior número possível de filesystems, suportaremos filenames de até 512 bytes
+        #tamanho máximo de um arquivo transferido por uma sprint apenas, 4Gb = 2^32, 4 bytes
+        signature = 'F.A.S.T.'.encode()
+        label= bytes([131]
+        dataSize= bytes[((len(data)//(256**3))%256), ((len(data)//(256**2))%256), ((len(data)//256)%256), (len(data)%256)]
+        content= filename.encode()
+        filenameSize= bytes[(((len(content)//256)%256)), (len(content)%256)]
+        header= signature + label + dataSize + filenameSize
+
+        content= content+bytes[0]*(512-len(content))
+
+        signature= 'S.L.O.W.'.encode()
+        eop= checksum(header + content) + signature
         
+        self.meta=(header+content+eop)
+
+        
+        #Fazer o packaging        
 
         data+= (((2**16) - (len(data)%2**16)) %2**16)*bytes([0]) #oh god
         
         counter=0
         while(counter!=packetamount):
             thisdata=data[counter*(2**16), (counter+1)*(2**16)]
-            self.data.append( createPacket( counter) )
+            self.queuedPck.append( createPacket( counter) )
             counter+= 1
 
     def createPacket(payload, counter):
     
         signature = 'F.A.S.T.'.encode()
         label = bytes([0])
-        size= 2**16 #size do payload, constante pra packets com payload
+        size= 2**16 #size do payload, constante para packets com payload
         
         header= signature + label + counter + size
         #13 bytes
