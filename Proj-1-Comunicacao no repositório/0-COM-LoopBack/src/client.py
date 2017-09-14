@@ -46,7 +46,7 @@ def main():
     ###STATE MACHINE START###
 
     # Handshake
-    timeout = 1000
+    timeout = 100
     while True:
         print('Estabelecendo canal de comunicação...')
         state = 0
@@ -75,7 +75,7 @@ def main():
     print('Handshake realizado com sucesso!')
     
     # Metadata
-    timeout= 1000
+    timeout= 100
     while True:
         print('Enviando metadata...')
         com.sendPacket('META')
@@ -87,7 +87,7 @@ def main():
     print('Envio da metadata realizado com sucesso!')
 
     # File Transmission
-    timeout= 1000
+    timeout= 100
     counter= 0
     while True:
         print('Enviando packet '+str(counter)+' de '+str(len(com.queuedPck)))
