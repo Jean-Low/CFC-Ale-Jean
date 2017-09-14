@@ -59,7 +59,7 @@ class enlace(object):
         dic = {
             'small': 17,
             'medium': 543, #signature + label + thresh + pckAmount + filenameSize + content + checksum + signature : +8 +1 +2 +2 +2 +512 +8 +8
-            'big': 13 + 2**16 + 16} #header + payload + eop
+            'big': 13 + 2**10 + 16} #header + payload + eop
         size= dic[size]
         
         while timeout > 0 or timeout == -1111:
@@ -143,9 +143,11 @@ class enlace(object):
         
         self.queuedPck=[]        
 
-        #bytes do payload de cada packet: 2**16
-        payloadsize= 2**16
+        #bytes do payload de cada packet: 2**10
+        payloadsize= 2**10
         packetamount= ( (len(data)-1)//payloadsize )+1
+
+        #TODO: editar o metadata para suportar mais packets por comunicação
         
         ##Fazer metadata
         #Para suportar o maior número possível de filesystems, suportaremos filenames de até 512 bytes
@@ -169,11 +171,11 @@ class enlace(object):
         
         #Fazer o packaging        
 
-        data+= (((2**16) - (len(data)%2**16)) %2**16)*bytes([0]) #oh god
+        data+= (((2**10) - (len(data)%2**10)) %2**10)*bytes([0]) #oh god
         
         counter=0
         while(counter != packetamount):
-            thisdata=data[counter*(2**16): (counter+1)*(2**16)]
+            thisdata=data[counter*(2**10): (counter+1)*(2**10)]
             self.queuedPck.append( self.createPacket( thisdata, counter) )
             counter+= 1
 
@@ -181,8 +183,8 @@ class enlace(object):
     
         signature = 'F.A.S.T.'.encode()
         label = bytes([0])
-        #size= 2**16 #size do payload, constante para packets com payload
-        size= bytes([0 , 0]) #TODO: consertar  
+        #size= 2**10 #size do payload, constante para packets com payload
+        size= bytes([0]) #TODO: consertar  
         counter= bytes([((counter//256)%256), (counter%256)])
         
         header= signature + label + counter + size
