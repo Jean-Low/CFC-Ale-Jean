@@ -115,8 +115,6 @@ class RX(object):
         self.buffer = b""
         
     def clearBufferUntilSignature(self, signature):
-        self.clearBuffer()
-        return
         #passo 1: tirar o primeiro byte
         temp= self.buffer[1:]
         
