@@ -77,7 +77,7 @@ def main():
     while True:
         print('Esperando packet '+str(counter+1)+' de '+str(packetAmount) )
         answer, packet= com.listenPacket(-1111, 'big')
-        print(packet)
+        #print(packet)
         if (answer== 'DATA'):
             counter+= 1
             com.receivedPck.append(packet)

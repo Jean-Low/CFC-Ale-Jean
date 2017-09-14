@@ -79,6 +79,7 @@ class enlace(object):
             label= 151
 
         if( label==0 and self.getPayloadCounter(packet)!=len(self.receivedPck)):
+            print(self.getPayloadCounter(packet))
             label=222
         
         
@@ -111,13 +112,14 @@ class enlace(object):
         return int.from_bytes(packet[9:11], byteorder='big')
 
     def getPayloadCounter(self, packet):
-        return int.from_bytes(packet[11:14], byteorder='big')
+        return int.from_bytes(packet[11:14], byteorder='little')
 
     def collapseData(self):
         data= bytes(bytearray())
         i=0
         while(i!= len(self.receivedPck)):
             data+= self.receivedPck[i][13:-16]
+            print('azul ', self.getPayloadCounter(self.receivedPck[i]))
             i+= 1
         self.receivedPck= []
         cut=(2**10-self.getMetaThreshold(self.meta))%(2**10)
