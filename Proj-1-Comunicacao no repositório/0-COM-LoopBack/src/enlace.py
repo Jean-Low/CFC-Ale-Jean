@@ -29,6 +29,7 @@ class enlace(object):
         self.rx          = RX(self.fisica)
         self.tx          = TX(self.fisica)
         self.connected   = False
+        self.data        = []
 
     def enable(self):
         """ Enable reception and transmission
@@ -86,39 +87,38 @@ class enlace(object):
         label= dic[label]
         print ("Resultado do packet ouvido: "+label)
         self.rx.clearBufferUntilHeader()
-        return dic[label]
-            
-        #clear buffer afterward if data
+        return label
     
-    def clearBufferUntilHeader():
-        #tira o primeiro byte
-        
-        
-    
-    def sendSignal(self, signal):
+    def sendPacket(self, label, extra= 0):
+
+        print ("Enviando packet tipo ", label)
+
         dic = {'SYN' : bytes([255]),
                 'ACK' : bytes([240]),
-                'NACK' : bytes([15])}
-                    
+                'NACK' : bytes([15]),
+                'DATA' : bytes([0])}
+        
+        label = dic[label]
+        if(label==bytes([255]) or label==bytes([240]) or label==bytes([15])):
 
-        signature = 'F.A.S.T.'.encode()
-        label = dic[signal]
+            signature = 'F.A.S.T.'.encode()
+            
+            header = signature + label
+            
+            signature = 'S.L.O.W.'.encode()
+            
+            eop = signature
+            packet= header + eop
+
+        else if(label==bytes([0])):
+            packet= self.data[extra]
         
-        header = signature + label
+        self.tx.sendBuffer(packet)
+
+    def packageData(self, data):
         
-        signature = 'S.L.O.W.'.encode()
-        
-        eop = signature
-        
-        print ("Packet Enviado: ",signal)
-        signal = header + eop
-        
-        self.tx.sendBuffer(signal)
-        
-    def sendData(self, data):
-        """ Send data over the enlace interface
-        """
-        
+        self.data=[]        
+
         #bytes do payload de cada packet: 2**16
         packetamount= ( len(data)//2**16 )+1
         
@@ -127,16 +127,9 @@ class enlace(object):
         counter=0
         while(counter!=packetamount):
             thisdata=data[counter*(2**16), (counter+1)*(2**16)]
-            packet= createPacket( counter);
-            #sleep + listen?
-            
-            #
+            self.data.append( createPacket( counter) )
             counter+= 1
-        
-        counter = bytes([n // 256, n % 256])
-        
-        self.tx.sendBuffer(data)
-        
+
     def createPacket(payload, counter):
     
         signature = 'F.A.S.T.'.encode()
@@ -152,8 +145,45 @@ class enlace(object):
         #16 bytes
         
         return header + payload + eop
+
+    def checksum (self, data):
+    #Implementação nossa de um CRC-64 bits
+
+        data= int.from_bytes(data, 'big')
+        data=data*(2**63) #append com zeros
         
+        while (data.bit_length() > 63):
+            sumNum = 2 ** (data.bit_length()-64)
+            key = 9241846741563846107 #um int aleatoriamente selecionado de 64 bits
+            powerkey=key*sumNum
+            
+            data^=powerkey
         
+        return bytes([  (data//(256**7)) % 256, (data//(256**6)) % 256,
+            (data//(256**5)) % 256, (data//(256**4)) % 256, (data//(256**3)) % 256,
+            (data//(256**2)) % 256, (data//256) % 256, data % 256])
+
+    ##def sendData(self, data):
+    #    """ Send data over the enlace interface
+    #    """
+    #    
+    #    #bytes do payload de cada packet: 2**16
+    #    packetamount= ( len(data)//2**16 )+1
+    #    
+    #    data+= (((2**16) - (len(data)%2**16)) %2**16)*bytes([0]) #oh god
+    #    
+    #    counter=0
+    #    while(counter!=packetamount):
+    #        thisdata=data[counter*(2**16), (counter+1)*(2**16)]
+    #        packet= createPacket( counter);
+    #        #sleep + listen?
+    #        
+    #        #
+    #        counter+= 1
+    #    
+    #    counter = bytes([n // 256, n % 256])
+    #    
+    ##    self.tx.sendBuffer(data)
 
     ##def getData(self, size):
     #    """ Get n data over the enlace interface
@@ -163,22 +193,3 @@ class enlace(object):
     #    
     #    #checar checksum
     ##    return(data, len(data))
-    
-    def checksum (self, data): #Implementação nossa de um CRC-64 bits
-        data= int.from_bytes(data, 'big')
-        data=data*(2**63) #append
-        
-        while (data.bit_length() > 63):
-            sumNum = 2 ** (data.bit_length()-64)
-            key = 9241846741563846107 #um int aleatoriamente selecionado de 64 bits
-            powerkey=key*sumNum
-            
-            data^=powerkey
-        
-        print(bin(data))
-        print(data)
-        return bytes([  (data//(256**7)) % 256, (data//(256**6)) % 256,
-            (data//(256**5)) % 256, (data//(256**4)) % 256, (data//(256**3)) % 256,
-            (data//(256**2)) % 256, (data//256) % 256, data % 256])
-            
-        
