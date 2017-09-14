@@ -30,6 +30,7 @@ class enlace(object):
         self.tx          = TX(self.fisica)
         self.connected   = False
         self.data        = []
+        self.meta        = None
 
     def enable(self):
         """ Enable reception and transmission
@@ -56,6 +57,7 @@ class enlace(object):
         
         dic = {
             'small': 17,
+            'medium': 0, #TODO: substituir pelo valor definido do packet metadata
             'big': 2**16 + 13 + 16} #payload + header + eop
         size= dic[size]
         
@@ -80,25 +82,27 @@ class enlace(object):
             255 :'SYN',
             240 :'ACK',
             170 :'MALFORMED',
-            151 :'CORRUPTED'
-            85 :'TIMEOUT',
-            15 :'NACK'}
+            151 :'CORRUPTED',
+            128 :'META',
+            85  :'TIMEOUT',
+            15  :'NACK'}
         
         label= dic[label]
         print ("Resultado do packet ouvido: "+label)
         self.rx.clearBufferUntilHeader()
         return label
     
-    def sendPacket(self, label, extra= 0):
+    def sendPacket(self, label, number= 0):
 
         print ("Enviando packet tipo ", label)
 
         dic = {'SYN' : bytes([255]),
                 'ACK' : bytes([240]),
                 'NACK' : bytes([15]),
+                'META' : bytes([128]),
                 'DATA' : bytes([0])}
-        
         label = dic[label]
+
         if(label==bytes([255]) or label==bytes([240]) or label==bytes([15])):
 
             signature = 'F.A.S.T.'.encode()
@@ -110,18 +114,25 @@ class enlace(object):
             eop = signature
             packet= header + eop
 
+        else if(label==bytes([128]):
+            packet= self.meta
+
         else if(label==bytes([0])):
-            packet= self.data[extra]
+            packet= self.data[number]
         
         self.tx.sendBuffer(packet)
 
-    def packageData(self, data):
+    def packageData(self, data, filename):
         
         self.data=[]        
 
         #bytes do payload de cada packet: 2**16
         packetamount= ( len(data)//2**16 )+1
         
+        #TODO: packet de metadata aqui
+        #Para suportar o maior número possível de filesystems, suportaremos filenames de até 512 bytes
+        
+
         data+= (((2**16) - (len(data)%2**16)) %2**16)*bytes([0]) #oh god
         
         counter=0
