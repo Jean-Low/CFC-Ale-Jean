@@ -38,7 +38,7 @@ def main():
     ###STATE MACHINE START###
 
     # Handshake
-    timeout= 200
+    timeout= 512
     while True:
         print('Esperando por canal de comunicação . . .')
         state = 0
@@ -57,7 +57,7 @@ def main():
     print('Handshake realizado com sucesso!')
 
     # Metadata
-    timeout= 200
+    timeout= 512
     while True:
         print('Esperando metadata...')
         answer, meta= com.listenPacket(-1111, 'medium')
@@ -72,7 +72,7 @@ def main():
     print('Recebimento da metadata realizado com sucesso!')
 
     # File Transmission
-    timeout= 200
+    timeout= 512
     counter= 0
     while True:
         print('Esperando packet '+str(counter)+' de '+str(packetAmount) )

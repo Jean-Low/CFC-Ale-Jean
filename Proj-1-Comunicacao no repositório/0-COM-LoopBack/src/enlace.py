@@ -117,7 +117,7 @@ class enlace(object):
         return data[:-cut]
     
     def sendPacket(self, label, number= 0):
-        time.sleep(0.1) #pra dar tempo do outro se preparar pra receber, testar diminuir ou remover este valor depois
+        time.sleep(0.2) #pra dar tempo do outro se preparar pra receber, testar diminuir ou remover este valor depois
 
         print ("Enviando packet tipo ", label)
 
