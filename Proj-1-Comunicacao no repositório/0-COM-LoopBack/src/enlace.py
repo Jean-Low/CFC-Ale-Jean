@@ -59,7 +59,7 @@ class enlace(object):
         dic = {
             'small': 17,
             'medium': 544, #signature + label + thresh + pckAmount + filenameSize + content + checksum + signature : +8 +1 +2 +3 +2 +512 +8 +8
-            'big': 13 + 2**10 + 16} #header + payload + eop
+            'big': 14 + 2**10 + 16} #header + payload + eop
         size= dic[size]
         
         while timeout > 0 or timeout == -1111:
@@ -77,11 +77,15 @@ class enlace(object):
             
         if( (label==0 or label==131) and self.checksum(packet[0:-16]) != packet[-16:-8]): #confere o checksum de header+payload contra o checksum no eop
             label= 151
+
+        if( label==0 and self.getPayloadCounter(packet)!=len(self.receivedPck)):
+            label=222
         
         
         dic = {
             255 :'SYN',
             240 :'ACK',
+            222 :'MISCOUNT',
             170 :'MALFORMED',
             151 :'CORRUPTED',
             131 :'META',
@@ -105,6 +109,9 @@ class enlace(object):
 
     def getMetaThreshold(self, packet):
         return int.from_bytes(packet[9:11], byteorder='big')
+
+    def getPayloadCounter(self, packet):
+        return int.from_bytes(packet[11:14], byteorder='big')
 
     def collapseData(self):
         data= bytes(bytearray())
@@ -193,10 +200,10 @@ class enlace(object):
         label = bytes([0])
         #size= 2**10 #size do payload, constante para packets com payload
         size= bytes([0, 0]) #TODO: consertar  
-        counter= bytes([((counter//256)%256), (counter%256)])
+        counter= bytes([((counter//(256**2))%256), ((counter//256)%256), (counter%256)])
         
         header= signature + label + counter + size
-        #13 bytes
+        #14 bytes
         
         signature = 'S.L.O.W.'.encode()
         
