@@ -86,7 +86,8 @@ class enlace(object):
             151 :'CORRUPTED',
             131 :'META',
             85  :'TIMEOUT',
-            15  :'NACK'}
+            15  :'NACK',
+            0   : 'DATA'}
         
         label= dic[label]
         print ("Resultado do packet ouvido: "+label)
