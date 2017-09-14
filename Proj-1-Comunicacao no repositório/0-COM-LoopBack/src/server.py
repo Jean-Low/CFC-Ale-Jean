@@ -63,7 +63,7 @@ def main():
         answer, meta= com.listenPacket(-1111, 'medium')
         if(answer=='META'):
             com.sendPacket('ACK')
-            #TODO
+            com.meta= meta
             packetAmount= com.getMetaPacketAmount(meta)
             filename= com.getMetaName(meta)
             break

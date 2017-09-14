@@ -103,6 +103,9 @@ class enlace(object):
     def getMetaPacketAmount(self, packet):
         return int.from_bytes(packet[11:14], byteorder='big')
 
+    def getMetaThreshold(self, packet)
+        return int.from_bytes(packet[9,11], byteorder='big')
+
     def collapseData(self):
         data= bytes(bytearray())
         i=0
@@ -110,7 +113,8 @@ class enlace(object):
             data+= self.receivedPck[i][13:-16]
             i+= 1
         self.receivedPck= []
-        return data
+        cut=(2**10-self.getMetaThreshold(self.meta))%(2**10)
+        return data[:-cut]
     
     def sendPacket(self, label, number= 0):
         time.sleep(0.1) #pra dar tempo do outro se preparar pra receber, testar diminuir ou remover este valor depois
