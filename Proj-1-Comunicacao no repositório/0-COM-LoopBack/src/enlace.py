@@ -104,7 +104,7 @@ class enlace(object):
         return int.from_bytes(packet[11:14], byteorder='big')
 
     def getMetaThreshold(self, packet):
-        return int.from_bytes(packet[9,11], byteorder='big')
+        return int.from_bytes(packet[9:11], byteorder='big')
 
     def collapseData(self):
         data= bytes(bytearray())
