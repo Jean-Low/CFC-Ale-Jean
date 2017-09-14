@@ -93,13 +93,14 @@ def main():
         print('Enviando packet '+str(counter+1)+' de '+str(len(com.queuedPck)))
         com.sendPacket('DATA', counter)
         answer, null= com.listenPacket(timeout, 'small')
+        print(com.queuedPck[counter])
         if (answer== 'ACK'):
             counter+= 1
             if (counter==len(com.queuedPck)):
                 break
         else:
             com.sendPacket('NACK')
-            print('Erro;  ' , answer, '. Recomeçando o envio a partir do packet ', counter)
+            print('Erro;  ' , answer, '. Recomeçando o envio a partir do packet ', counter+1)
     print('Fim do envio do arquivo')
 
     ###STATE MACHINE END###

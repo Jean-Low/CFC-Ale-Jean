@@ -77,6 +77,7 @@ def main():
     while True:
         print('Esperando packet '+str(counter+1)+' de '+str(packetAmount) )
         answer, packet= com.listenPacket(-1111, 'big')
+        print(packet)
         if (answer== 'DATA'):
             counter+= 1
             com.receivedPck.append(packet)
@@ -85,7 +86,7 @@ def main():
                 break
         else:
             com.sendPacket('NACK')
-            print('Erro;  ' , answer, '. Recomeçando a receber a partir do packet ', counter)
+            print('Erro;  ' , answer, '. Recomeçando a receber a partir do packet ', counter+1)
     print('Fim do recebimento do arquivo')
 
     ###STATE MACHINE END###
