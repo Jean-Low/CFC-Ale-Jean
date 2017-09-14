@@ -85,11 +85,15 @@ class enlace(object):
         
         label= dic[label]
         print ("Resultado do packet ouvido: "+label)
-        if(label==170 or label==151 or label==85):
-            self.rx.clearBuffer()
+        self.rx.clearBufferUntilHeader()
         return dic[label]
             
         #clear buffer afterward if data
+    
+    def clearBufferUntilHeader():
+        #tira o primeiro byte
+        
+        
     
     def sendSignal(self, signal):
         dic = {'SYN' : bytes([255]),

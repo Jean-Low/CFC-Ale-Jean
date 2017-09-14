@@ -86,7 +86,7 @@ class RX(object):
         """
         self.threadPause()
         b           = self.buffer[0:nData]
-        self.buffer = self.buffer[nData:]
+        #self.buffer = self.buffer[nData:]
         self.threadResume()
         return(b)
 
@@ -113,5 +113,24 @@ class RX(object):
         """ Clear the reception buffer
         """
         self.buffer = b""
-
+        
+    def clearBufferUntilSignature(self, signature):
+        #passo 1: tirar o primeiro byte
+        temp= self.buffer[1:]
+        
+        i=0
+        while(i!=len(temp))
+            if(temp[i]==signature[0]):
+                if(temp[i:i+len(signature)] == signature)
+                    break
+            i+=1
+            
+        i+=1
+        #i é o que eu quero
+        
+        if(i!=len(self.buffer)):
+            self.buffer = self.buffer[i:]
+        else:
+            self.clearBuffer()
+            
 
