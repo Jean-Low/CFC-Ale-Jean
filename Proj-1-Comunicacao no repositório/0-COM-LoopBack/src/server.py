@@ -96,7 +96,7 @@ def main():
     fim = time.time()
 
     # log
-    print ("Received        {} bytes of usefull data".format(size))
+    print ("Recebemos {} bytes de data útil".format(len(data)))
     
 
     # Salva imagem recebida em arquivo
