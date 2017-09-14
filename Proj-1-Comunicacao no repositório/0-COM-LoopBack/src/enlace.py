@@ -7,11 +7,8 @@
 #  Camada de Enlace
 ####################################################
 
-# Importa pacote de tempo
 import time
-
-# Construct Struct
-from construct import *
+import math
 
 # Interface Física
 from interfaceFisica import fisica
@@ -19,6 +16,7 @@ from interfaceFisica import fisica
 # enlace Tx e Rx
 from enlaceRx import RX
 from enlaceTx import TX
+
 
 class enlace(object):
     """ This class implements methods to the interface between Enlace and Application
@@ -142,19 +140,21 @@ class enlace(object):
         
         return isValid 
     
-    def checksum (self, data):
-        print('oi, eu sou um checksum : ' , int.from_bytes(bytes([12]), 'big') >> 1)
-        data= str(int.from_bytes(data, 'big'))[::-1]
-        key = int.from_bytes('F.A.S.T'.encode())
+    def checksum (self, data): #Implementação nossa de um CRC-64 bits
+        data= int.from_bytes(data, 'big')
+        data=data*(2**63) #append
         
-        #agora funciona?
+        while (data.bit_length() > 63):
+            sumNum = 2 ** (data.bit_length()-64)
+            key = 9241846741563846107 #um int aleatoriamente selecionado de 64 bits
+            powerkey=key*sumNum
+            
+            data^=powerkey
         
-        
-        
-        
-        
-        
-        
-        
-        
+        print(bin(data))
+        print(data)
+        return bytes([  (data//(256**7)) % 256, (data//(256**6)) % 256,
+            (data//(256**5)) % 256, (data//(256**4)) % 256, (data//(256**3)) % 256,
+            (data//(256**2)) % 256, (data//256) % 256, data % 256])
+            
         
