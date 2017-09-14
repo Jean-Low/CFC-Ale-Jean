@@ -90,7 +90,7 @@ def main():
     timeout= 512
     counter= 0
     while True:
-        print('Enviando packet '+str(counter)+' de '+str(len(com.queuedPck)))
+        print('Enviando packet '+str(counter+1)+' de '+str(len(com.queuedPck)))
         com.sendPacket('DATA', counter)
         answer, null= com.listenPacket(timeout, 'small')
         if (answer== 'ACK'):

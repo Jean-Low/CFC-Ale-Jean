@@ -75,7 +75,7 @@ def main():
     timeout= 512
     counter= 0
     while True:
-        print('Esperando packet '+str(counter)+' de '+str(packetAmount) )
+        print('Esperando packet '+str(counter+1)+' de '+str(packetAmount) )
         answer, packet= com.listenPacket(-1111, 'big')
         if (answer== 'DATA'):
             counter+= 1
