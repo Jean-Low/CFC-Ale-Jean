@@ -43,13 +43,13 @@ def main():
         print('Esperando por canal de comunicação . . .')
         state = 0
         if state == 0:
-            answer, null = com.listenPacket(-1111)
+            answer, null = com.listenPacket(-1111, 'small')
             if (answer == 'SYN'):
                 state = 1
         if state == 1:
             com.sendPacket('SYN')
             com.sendPacket('ACK')
-            answer, null= com.listenPacket(timeout)
+            answer, null= com.listenPacket(timeout, 'small')
             if (answer == 'ACK'):
                 break
         com.sendPacket('NACK')

@@ -52,7 +52,7 @@ class enlace(object):
     # Application  interface       #
     ################################
     
-    def listenPacket(self ,timeout, size='small'): #valor -1111 desativa o timeout
+    def listenPacket(self ,timeout, size): #valor -1111 desativa o timeout
         label = 85
         packet= None
         
@@ -184,7 +184,7 @@ class enlace(object):
         signature = 'F.A.S.T.'.encode()
         label = bytes([0])
         #size= 2**10 #size do payload, constante para packets com payload
-        size= bytes([0]) #TODO: consertar  
+        size= bytes([0, 0]) #TODO: consertar  
         counter= bytes([((counter//256)%256), (counter%256)])
         
         header= signature + label + counter + size

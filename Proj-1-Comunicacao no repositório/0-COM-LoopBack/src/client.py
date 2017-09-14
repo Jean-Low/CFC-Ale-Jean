@@ -54,14 +54,14 @@ def main():
             com.sendPacket('SYN')
             state = 1
         if state == 1:
-            answer, null = com.listenPacket(timeout)
+            answer, null = com.listenPacket(timeout, 'small')
             if (answer == 'SYN' or answer == 'ACK'):
                 tmp=answer
                 state = 2
             else:
                 state = 0
         if state == 2:
-            answer, null = com.listenPacket(timeout)
+            answer, null = com.listenPacket(timeout, 'small')
             if ((answer == 'SYN' or answer == 'ACK') and tmp != answer):
                 state = 3
             else:
@@ -79,7 +79,7 @@ def main():
     while True:
         print('Enviando metadata...')
         com.sendPacket('META')
-        answer, null= com.listenPacket(timeout)
+        answer, null= com.listenPacket(timeout, 'small')
         if(answer=='ACK'):
             break
         com.sendPacket('NACK')
@@ -92,7 +92,7 @@ def main():
     while True:
         print('Enviando packet '+str(counter)+' de '+str(len(com.queuedPck)))
         com.sendPacket('DATA', counter)
-        answer, null= com.listenPacket(timeout)
+        answer, null= com.listenPacket(timeout, 'small')
         if (answer== 'ACK'):
             counter+= 1
             if (counter==len(com.queuedPck)):
