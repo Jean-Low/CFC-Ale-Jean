@@ -49,31 +49,44 @@ class enlace(object):
     # Application  interface       #
     ################################
     
-    def listenSignal(self ,timeout): #valor -1111 desativa o timeout
+    def listenPacket(self ,timeout, size='small'): #valor -1111 desativa o timeout
         label = 85
         buffer= None
+        
+        dic = {
+            'small': 17,
+            'big': 2**16 + 13 + 16} #payload + header + eop
+        size= dic[size]
+        
         while timeout > 0 or timeout == -1111:
             if (timeout != -1111):
                 timeout -= 100
             time.sleep(0.1)
-            if(self.rx.getBufferLen() >= 17 ):
-                buffer = self.rx.getBuffer(17)
+            if(self.rx.getBufferLen() >= size ):
+                buffer = self.rx.getBuffer(size)
                 label= buffer[8]
                 break
         
         
-        if(  buffer!=None and (buffer[0:8] != 'F.A.S.T.'.encode() or buffer[9:] != 'S.L.O.W.'.encode())):
+        if(  buffer!=None and (buffer[0:8] != 'F.A.S.T.'.encode() or buffer[-8:] != 'S.L.O.W.'.encode())): #confere as assinaturas de header e eop
             label = 170
+            
+        if( label=0 and checksum(buffer[0:-16]) != buffer(-16:-8)): #confere o checksum de header+payload contra o checksum no eop
+            label= 151
         
         
         dic = {
             255 :'SYN',
             240 :'ACK',
             170 :'MALFORMED',
+            151 :'CORRUPTED'
             85 :'TIMEOUT',
             15 :'NACK'}
-        print ("Resultado do packet ouvido: "+dic[label])
-        self.rx.clearBuffer()
+        
+        label= dic[label]
+        print ("Resultado do packet ouvido: "+label)
+        if(label==170 or label==151 or label==85):
+            self.rx.clearBuffer()
         return dic[label]
             
         #clear buffer afterward if data
@@ -89,7 +102,6 @@ class enlace(object):
         
         header = signature + label
         
-        #TODO Checksum
         signature = 'S.L.O.W.'.encode()
         
         eop = signature
@@ -103,42 +115,50 @@ class enlace(object):
         """ Send data over the enlace interface
         """
         
-        n = 1 # ;3  change
-        size= len(data)       
-
-        signature = 'F.A.S.T.'.encode()
-        label = bytes([0])
+        #bytes do payload de cada packet: 2**16
+        packetamount= ( len(data)//2**16 )+1
+        
+        data+= (((2**16) - (len(data)%2**16)) %2**16)*bytes([0]) #oh god
+        
+        counter=0
+        while(counter!=packetamount):
+            thisdata=data[counter*(2**16), (counter+1)*(2**16)]
+            packet= createPacket( counter);
+            #sleep + listen?
+            
+            #
+            counter+= 1
+        
         counter = bytes([n // 256, n % 256])
-        size = bytes([size // 256,size % 256])
-        
-        header = signature + label + counter + size
-        
-        #TODO Checksum
-        signature = 'S.L.O.W.'.encode()
-        
-        eop = signature
-        
-        data = header + data + eop
         
         self.tx.sendBuffer(data)
-
-    def getData(self, size):
-        """ Get n data over the enlace interface
-        Return the byte array and the size of the buffer
-        """
-        data = self.rx.getNData(size)
-        return(data, len(data))
+        
+    def createPacket(payload, counter):
     
-    def validate (self,data):
-        isValid= True
-        print(data[-8:])
-        if((data[0:8] != 'F.A.S.T.'.encode() or data[-8:] != 'S.L.O.W.'.encode())):
-            isValid = False
+        signature = 'F.A.S.T.'.encode()
+        label = bytes([0])
+        size= 2**16 #size do payload, constante pra packets com payload
+        
+        header= signature + label + counter + size
+        #13 bytes
+        
+        signature = 'S.L.O.W.'.encode()
+        
+        eop = checksum(header+payload) + signature
+        #16 bytes
+        
+        return header + payload + eop
         
         
-        
-        
-        return isValid 
+
+    ##def getData(self, size):
+    #    """ Get n data over the enlace interface
+    #    Return the byte array and the size of the buffer
+    #    """
+    #    data = self.rx.getNData(size)
+    #    
+    #    #checar checksum
+    ##    return(data, len(data))
     
     def checksum (self, data): #Implementação nossa de um CRC-64 bits
         data= int.from_bytes(data, 'big')
