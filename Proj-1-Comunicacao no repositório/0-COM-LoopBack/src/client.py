@@ -42,6 +42,7 @@ def main():
 
     com.packageData(open(filename, 'rb').read(), filename)
 
+    inicio= time.time()
     ###STATE MACHINE START###
 
     # Handshake
@@ -91,6 +92,7 @@ def main():
     while True:
         print('Enviando packet '+str(counter)+' de '+str(len(com.queuedPck)))
         com.sendPacket('DATA', counter)
+        answer, null= com.listenPacket(timeout)
         if (answer== 'ACK'):
             counter+= 1
             if (counter==len(com.queuedPck)):

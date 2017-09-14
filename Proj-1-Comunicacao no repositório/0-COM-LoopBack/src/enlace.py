@@ -58,7 +58,7 @@ class enlace(object):
         
         dic = {
             'small': 17,
-            'medium': 543, #signature + label + thresh + pckAmount + filenameSize + content + checksum + signature : +8 +1 +2 +2 +2 +512 +8 +8
+            'medium': 544, #signature + label + thresh + pckAmount + filenameSize + content + checksum + signature : +8 +1 +2 +3 +2 +512 +8 +8
             'big': 13 + 2**10 + 16} #header + payload + eop
         size= dic[size]
         
@@ -97,7 +97,7 @@ class enlace(object):
         return packet[15: 15+512].decode('utf-8') #torcemos para que não tenhamos que nos preocupar algo que não utf-8
 
     def getMetaPacketAmount(self, packet):
-        return int.from_bytes(packet[11:13], byteorder='big')
+        return int.from_bytes(packet[11:14], byteorder='big')
 
     def collapseData(self):
         data= bytes(bytearray())
@@ -158,7 +158,7 @@ class enlace(object):
         thresh= bytes([((thresh//256)%256), (thresh%256)])
         content= filename.encode()
         filenameSize= bytes([(((len(content)//256)%256)), (len(content)%256)])
-        pckAmount= bytes([((packetamount//256)%256), (packetamount%256)])
+        pckAmount= bytes([((packetamount//(256**2))%256), ((packetamount//256)%256), (packetamount%256)])
         header= signature + label + thresh + pckAmount + filenameSize
 
         content= content+bytes([0])*(512-len(content))
@@ -206,7 +206,7 @@ class enlace(object):
         while (data.bit_length() > 64):
             print(data.bit_length())
             sumNum = 2 ** (data.bit_length()-65)
-            key = 18241846741563846107 #um int aleatoriamente selecionado de 65 bits
+            key = 18601846741563846107 #um int aleatoriamente selecionado de 65 bits
             powerkey=key*sumNum
             
             data^=powerkey
