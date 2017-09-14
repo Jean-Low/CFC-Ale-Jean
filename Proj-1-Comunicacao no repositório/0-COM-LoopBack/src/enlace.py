@@ -95,7 +95,10 @@ class enlace(object):
         return (label, packet)
 
     def getMetaName(self, packet):
-        return packet[15: 15+512].decode('utf-8') #torcemos para que não tenhamos que nos preocupar algo que não utf-8
+        trailingfilename= packet[15: 15+512]
+        filenamelength= int.from_bytes(packet[13:15], byteorder='big')
+        filename= trailingfilename[0: filenamelength]
+        return filename.decode('utf-8') #torcemos para que não tenhamos que nos preocupar algo que não utf-8
 
     def getMetaPacketAmount(self, packet):
         return int.from_bytes(packet[11:14], byteorder='big')
