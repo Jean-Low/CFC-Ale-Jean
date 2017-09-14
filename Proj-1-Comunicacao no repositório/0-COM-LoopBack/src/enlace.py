@@ -201,10 +201,8 @@ class enlace(object):
     #Implementação nossa de um CRC-64 bits
 
         data= int.from_bytes(data, 'big')
-        data=data*(2**64) #append com zeros
-        print("Rodando checksum")
+        data=data*(2**64) #append com zeros        
         while (data.bit_length() > 64):
-            print(data.bit_length())
             sumNum = 2 ** (data.bit_length()-65)
             key = 18601846741563846107 #um int aleatoriamente selecionado de 65 bits
             powerkey=key*sumNum
