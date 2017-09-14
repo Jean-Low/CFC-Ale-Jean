@@ -60,7 +60,7 @@ def main():
     timeout= 1000
     while True:
         print('Esperando metadata...')
-        answer, meta= com.listenPacket(-1111)
+        answer, meta= com.listenPacket(-1111, 'medium')
         if(answer=='META'):
             com.sendPacket('ACK')
             #TODO
@@ -76,7 +76,7 @@ def main():
     counter= 0
     while True:
         print('Enviando packet '+str(counter)+' de '+str(packetAmount) )
-        answer, packet= com.listenPacket(-1111)
+        answer, packet= com.listenPacket(-1111, 'big')
         if (answer== 'DATA'):
             counter+= 1
             com.receivedPck.append(packet)
