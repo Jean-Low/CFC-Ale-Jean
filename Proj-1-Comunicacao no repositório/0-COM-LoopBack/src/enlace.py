@@ -75,7 +75,7 @@ class enlace(object):
         if(  packet!=None and (packet[0:8] != 'F.A.S.T.'.encode() or packet[-8:] != 'S.L.O.W.'.encode())): #confere as assinaturas de header e eop
             label = 170
             
-        if( (label==0 or label==131) and checksum(packet[0:-16]) != packet[-16:-8]): #confere o checksum de header+payload contra o checksum no eop
+        if( (label==0 or label==131) and self.checksum(packet[0:-16]) != packet[-16:-8]): #confere o checksum de header+payload contra o checksum no eop
             label= 151
         
         
