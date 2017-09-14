@@ -27,83 +27,73 @@ def main():
     # Ativa comunicacao
     com.enable()
 
-
-    # Endereco da imagem a ser salva
-    imageW = "./imgs/recebida.png"
-    
-    # Handshake
-    timeout = 2000
-    com.checksum(b'Pedro may be a huge lolicon... maybe...I have no proof...\nyet.')
-    while True:
-        print('Esperando por canal de comunicação . . .')
-        state = 0
-        if state == 0:
-            answer = com.listenSignal(-1111)
-            if (answer == 'SYN'):
-                state = 1
-            else:
-                error= True
-                print("Erro, recebemos um "+str(answer))
-                state = 0
-        if state == 1:
-            time.sleep(0.1)
-            com.sendSignal('SYN')
-            
-            if (error):
-                error= False
-                time.sleep(0.1)
-                com.sendSignal('ACK')
-                
-                state= 0
-            else:
-                state = 2
-            
-        if state == 2:
-            time.sleep(0.1)
-            com.sendSignal('ACK')
-            state = 3
-        if state == 3:
-            answer = com.listenSignal(timeout)
-            if (answer == 'ACK'):
-                break
-            state = 0
-        print('ERROR: ' , answer, '\nTrying again')
-    
     # Log
     print("-------------------------")
     print("Comunicação inicializada")
     print("  porta : {}".format(com.fisica.name))
     print("-------------------------")
     
-    # Faz a recepção dos dados
-    eopSize = 8 #16 when checksum is in
-    print ("Recebendo dados .... ")
-    #tempBuffer1,nRx = com.getData(1)
-    #inicio = time.time()
-
-   
-    headerBuffer, tx = com.getData(13)
     inicio = time.time()
 
+    ###STATE MACHINE START###
 
-    #headerBuffer = tempBuffer1 + tempBuffer2
-    #print('headerBuffer : ',headerBuffer)
-    size = int(headerBuffer[-2]) * 256 + int(headerBuffer[-1])
-    print('expecting ', size + 21,' bytes of data')
-    
-    rxBuffer,tx = com.getData(size)
-    potentialEop, tx = com.getData(eopSize)
+    # Handshake
+    timeout= 1000
+    while True:
+        print('Esperando por canal de comunicação . . .')
+        state = 0
+        if state == 0:
+            answer, null = com.listenPacket(-1111)
+            if (answer == 'SYN'):
+                state = 1
+        if state == 1:
+            com.sendPacket('SYN')
+            com.sendPacket('ACK')
+            answer, null= com.listenPacket(timeout)
+            if (answer == 'ACK'):
+                break
+        com.sendPacket('NACK')
+        print('Erro;  ' , answer, '. Recomeçando handshake')
+    print('Handshake realizado com sucesso!')
+
+    # Metadata
+    timeout= 1000
+    while True:
+        print('Esperando metadata...')
+        answer, meta= com.listenPacket(-1111)
+        if(answer=='META'):
+            com.sendPacket('ACK')
+            #TODO
+            packetAmount= com.getPacketAmount(meta)
+            filename= com.getMetaName(meta)
+            break
+        com.sendPacket('NACK')
+        print('Erro;  ' , answer, '. Recomeçando recebimento de metadata')
+    print('Recebimento da metadata realizado com sucesso!')
+
+    # File Transmission
+    timeout= 1000
+    counter= 0
+    while True:
+        print('Enviando packet '+str(counter)+' de '+str(packetAmount) )
+        answer, packet= com.listenPacket(-1111)
+        if (answer== 'DATA'):
+            counter+= 1
+            com.receivedPck.append(packet)
+            com.sendPacket('ACK')
+            if (counter==packetAmount)
+                break
+        else:
+            com.sendPacket('NACK')
+            print('Erro;  ' , answer, '. Recomeçando a receber a partir do packet ', counter)
+    print('Fim do recebimento do arquivo')
+
+    ###STATE MACHINE END###
+
+
+    data= com.collapseData()
     
     fim = time.time()
-    
-    print('end of packet is ', potentialEop)
-    
-    if(potentialEop == 'S.L.O.W.'.encode()):
-        print('probably not corrupted')
-    else:
-        print('file corrupted')
-
-    # Inicia a contagem do tempo de transmissão
 
     # log
     print ("Received        {} bytes of usefull data".format(size))
@@ -112,9 +102,9 @@ def main():
     # Salva imagem recebida em arquivo
     print("-------------------------")
     print ("Salvando dados no arquivo :")
-    print (" - {}".format(imageW))
-    f = open(imageW, 'wb')
-    f.write(rxBuffer)
+    print (" - {}".format(filename))
+    f = open(filename, 'wb')
+    f.write(data)
     
     # Finaliza o tempo e calcula o tempo de transmissão
     print("O tempo total de transmissão: ", '%.2f' % ((fim - inicio) * 1000), 'ms')

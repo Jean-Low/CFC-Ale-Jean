@@ -58,8 +58,8 @@ class enlace(object):
         
         dic = {
             'small': 17,
-            'medium': 543, #signature + label + dataSize + filenameSize + content + checksum + signature : 8 +1 +4 +2 +512 +6 +8
-            'big': 2**16 + 13 + 16} #payload + header + eop
+            'medium': 543, #signature + label + thresh + pckAmount + filenameSize + content + checksum + signature : +8 +1 +2 +2 +2 +512 +8 +8
+            'big': 13 + 2**16 + 16} #header + payload + eop
         size= dic[size]
         
         while timeout > 0 or timeout == -1111:
@@ -91,7 +91,22 @@ class enlace(object):
         label= dic[label]
         print ("Resultado do packet ouvido: "+label)
         self.rx.clearBufferUntilSignature()
-        return packet
+        return (label, packet)
+
+    def getMetaName(self, packet):
+        return packet[15: 15+512].decode('utf-8') #torcemos para que não tenhamos que nos preocupar algo que não utf-8
+
+    def getMetaPacketAmount(self, packet):
+        return int.from_bytes(packet[11:13], byteorder='big')
+
+    def collapseData(self):
+        data= bytes(bytearray())
+        i=0
+        while(i!= len(self.receivedPck))
+            data+= self.receivedPck[i][13:-16]
+            i+= 1
+        self.receivedPck= []
+        return data
     
     def sendPacket(self, label, number= 0):
         time.sleep(0.1) #pra dar tempo do outro se preparar pra receber, testar diminuir ou remover este valor depois
@@ -129,17 +144,20 @@ class enlace(object):
         self.queuedPck=[]        
 
         #bytes do payload de cada packet: 2**16
-        packetamount= ( len(data)//2**16 )+1
+        payloadsize= 2**16
+        packetamount= ( (len(data)-1)//payloadsize )+1
         
         ##Fazer metadata
         #Para suportar o maior número possível de filesystems, suportaremos filenames de até 512 bytes
         #tamanho máximo de um arquivo transferido por uma sprint apenas, 4Gb = 2^32, 4 bytes
         signature = 'F.A.S.T.'.encode()
         label= bytes([131]
-        dataSize= bytes[((len(data)//(256**3))%256), ((len(data)//(256**2))%256), ((len(data)//256)%256), (len(data)%256)]
+        thresh= len(data)%payloadsize
+        thresh= bytes[(((len(thresh)//256)%256)), (len(thresh)%256)]
         content= filename.encode()
         filenameSize= bytes[(((len(content)//256)%256)), (len(content)%256)]
-        header= signature + label + dataSize + filenameSize
+        pckAmount= bytes[(((len(packetamount)//256)%256)), (len(packetamount)%256)]
+        header= signature + label + thresh + pckAmount + filenameSize
 
         content= content+bytes[0]*(512-len(content))
 

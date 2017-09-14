@@ -45,7 +45,7 @@ def main():
     ###STATE MACHINE START###
 
     # Handshake
-    timeout = 2000
+    timeout = 1000
     while True:
         print('Estabelecendo canal de comunicação...')
         state = 0
@@ -53,14 +53,14 @@ def main():
             com.sendPacket('SYN')
             state = 1
         if state == 1:
-            answer = com.listenPacket(timeout)
+            answer, null = com.listenPacket(timeout)
             if (answer == 'SYN' or answer == 'ACK'):
                 tmp=answer
                 state = 2
             else:
                 state = 0
         if state == 2:
-            answer = com.listenPacket(timeout)
+            answer, null = com.listenPacket(timeout)
             if ((answer == 'SYN' or answer == 'ACK') and tmp != answer):
                 state = 3
             else:
@@ -69,22 +69,24 @@ def main():
         if state == 3:
             com.sendPacket('ACK')
             break
+        com.sendPacket('NACK')
         print('Erro;  ' , answer, '. Recomeçando handshake')
     print('Handshake realizado com sucesso!')
     
     # Metadata
-    timeout= 2000
+    timeout= 1000
     while True:
         print('Enviando metadata...')
         com.sendPacket('META')
-        answer= com.listenPacket(timeout)
+        answer, null= com.listenPacket(timeout)
         if(answer=='ACK'):
             break
+        com.sendPacket('NACK')
         print('Erro;  ' , answer, '. Recomeçando envio de metadata')
     print('Envio da metadata realizado com sucesso!')
 
     # File Transmission
-    timeout= 2000
+    timeout= 1000
     counter= 0
     while True:
         print('Enviando packet '+str(counter)+' de '+str(len(com.queuedPck)))
@@ -94,6 +96,7 @@ def main():
             if (counter==len(com.queuedPck))
                 break
         else:
+            com.sendPacket('NACK')
             print('Erro;  ' , answer, '. Recomeçando o envio a partir do packet ', counter)
     print('Fim do envio do arquivo')
 
