@@ -93,7 +93,7 @@ def main():
         com.sendPacket('DATA', counter)
         if (answer== 'ACK'):
             counter+= 1
-            if (counter==len(com.queuedPck))
+            if (counter==len(com.queuedPck)):
                 break
         else:
             com.sendPacket('NACK')

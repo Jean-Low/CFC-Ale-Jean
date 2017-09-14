@@ -119,9 +119,9 @@ class RX(object):
         temp= self.buffer[1:]
         
         i=0
-        while(i!=len(temp))
+        while(i!=len(temp)):
             if(temp[i]==signature[0]):
-                if(temp[i:i+len(signature)] == signature)
+                if(temp[i:i+len(signature)] == signature):
                     break
             i+=1
             

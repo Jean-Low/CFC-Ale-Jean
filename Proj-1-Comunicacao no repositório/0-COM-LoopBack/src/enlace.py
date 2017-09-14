@@ -75,7 +75,7 @@ class enlace(object):
         if(  packet!=None and (packet[0:8] != 'F.A.S.T.'.encode() or packet[-8:] != 'S.L.O.W.'.encode())): #confere as assinaturas de header e eop
             label = 170
             
-        if( (label==0 or label==131) and checksum(packet[0:-16]) != packet(-16:-8)): #confere o checksum de header+payload contra o checksum no eop
+        if( (label==0 or label==131) and checksum(packet[0:-16]) != packet[-16:-8]): #confere o checksum de header+payload contra o checksum no eop
             label= 151
         
         
@@ -102,7 +102,7 @@ class enlace(object):
     def collapseData(self):
         data= bytes(bytearray())
         i=0
-        while(i!= len(self.receivedPck))
+        while(i!= len(self.receivedPck)):
             data+= self.receivedPck[i][13:-16]
             i+= 1
         self.receivedPck= []
@@ -131,10 +131,10 @@ class enlace(object):
             eop = signature
             packet= header + eop
 
-        else if(label==bytes([131]):
+        elif(label==bytes([131])):
             packet= self.meta
 
-        else if(label==bytes([0])):
+        elif(label==bytes([0])):
             packet= self.queuedPck[number]
         
         self.tx.sendBuffer(packet)
@@ -151,7 +151,7 @@ class enlace(object):
         #Para suportar o maior número possível de filesystems, suportaremos filenames de até 512 bytes
         #tamanho máximo de um arquivo transferido por uma sprint apenas, 4Gb = 2^32, 4 bytes
         signature = 'F.A.S.T.'.encode()
-        label= bytes([131]
+        label= bytes([131])
         thresh= len(data)%payloadsize
         thresh= bytes[(((len(thresh)//256)%256)), (len(thresh)%256)]
         content= filename.encode()

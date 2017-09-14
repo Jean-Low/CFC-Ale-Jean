@@ -81,7 +81,7 @@ def main():
             counter+= 1
             com.receivedPck.append(packet)
             com.sendPacket('ACK')
-            if (counter==packetAmount)
+            if (counter==packetAmount):
                 break
         else:
             com.sendPacket('NACK')
