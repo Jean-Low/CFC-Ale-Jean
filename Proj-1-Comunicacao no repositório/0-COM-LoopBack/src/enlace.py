@@ -90,7 +90,7 @@ class enlace(object):
         
         label= dic[label]
         print ("Resultado do packet ouvido: "+label)
-        self.rx.clearBufferUntilSignature()
+        self.rx.clearBufferUntilSignature('F.A.S.T.'.encode())
         return (label, packet)
 
     def getMetaName(self, packet):
@@ -153,16 +153,16 @@ class enlace(object):
         signature = 'F.A.S.T.'.encode()
         label= bytes([131])
         thresh= len(data)%payloadsize
-        thresh= bytes[(((len(thresh)//256)%256)), (len(thresh)%256)]
+        thresh= bytes([((thresh//256)%256), (thresh%256)])
         content= filename.encode()
-        filenameSize= bytes[(((len(content)//256)%256)), (len(content)%256)]
-        pckAmount= bytes[(((len(packetamount)//256)%256)), (len(packetamount)%256)]
+        filenameSize= bytes([(((len(content)//256)%256)), (len(content)%256)])
+        pckAmount= bytes([((packetamount//256)%256), (packetamount%256)])
         header= signature + label + thresh + pckAmount + filenameSize
 
-        content= content+bytes[0]*(512-len(content))
+        content= content+bytes([0])*(512-len(content))
 
         signature= 'S.L.O.W.'.encode()
-        eop= checksum(header + content) + signature
+        eop= self.checksum(header + content) + signature
         
         self.meta=(header+content+eop)
 
@@ -172,23 +172,25 @@ class enlace(object):
         data+= (((2**16) - (len(data)%2**16)) %2**16)*bytes([0]) #oh god
         
         counter=0
-        while(counter!=packetamount):
-            thisdata=data[counter*(2**16), (counter+1)*(2**16)]
-            self.queuedPck.append( createPacket( counter) )
+        while(counter != packetamount):
+            thisdata=data[counter*(2**16): (counter+1)*(2**16)]
+            self.queuedPck.append( self.createPacket( thisdata, counter) )
             counter+= 1
 
-    def createPacket(payload, counter):
+    def createPacket(self, payload, counter):
     
         signature = 'F.A.S.T.'.encode()
         label = bytes([0])
-        size= 2**16 #size do payload, constante para packets com payload
+        #size= 2**16 #size do payload, constante para packets com payload
+        size= bytes([0 , 0]) #TODO: consertar  
+        counter= bytes([((counter//256)%256), (counter%256)])
         
         header= signature + label + counter + size
         #13 bytes
         
         signature = 'S.L.O.W.'.encode()
         
-        eop = checksum(header+payload) + signature
+        eop = self.checksum(header+payload) + signature
         #16 bytes
         
         return header + payload + eop
@@ -198,8 +200,9 @@ class enlace(object):
 
         data= int.from_bytes(data, 'big')
         data=data*(2**63) #append com zeros
-        
+        print("Rodando checksum")
         while (data.bit_length() > 63):
+            print(data.bit_length())
             sumNum = 2 ** (data.bit_length()-64)
             key = 9241846741563846107 #um int aleatoriamente selecionado de 64 bits
             powerkey=key*sumNum
